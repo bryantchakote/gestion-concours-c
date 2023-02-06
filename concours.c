@@ -1,8 +1,10 @@
+// Importation des libraires
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
 
+// Définition des structures de données à utiliser
 typedef enum Decision {ADMIS, REFUSE, AJOURNE} Decision;
 
 typedef struct candidat
@@ -15,6 +17,7 @@ typedef struct candidat
     Decision DECISION;
 } candidat;
 
+// Enregistrement d'un candidat
 void saisie()
 {
     candidat eleve;
@@ -76,6 +79,82 @@ void saisie()
     }
 }
 
+// Liste des candidats admis
+void liste_admis()
+{
+    candidat eleve;
+    int c, n = 0;
+    char texte[100], *decis;
+
+    FILE *concours;
+    FILE *admis;
+    concours = fopen("concours.txt", "r");
+    admis = fopen("admis.txt", "w");
+
+    if(concours == NULL || admis == NULL)
+    	printf("\n\tERREUR D'OUVERTURE");
+    else
+	{
+        while((c = fgetc(concours)) != EOF)
+            if(c == '\n')
+                n++;
+        rewind(concours);
+
+        for(c = 0; c < n; c++)
+		{
+        	fgets(texte, 100, concours);
+        	decis = strstr(texte, "ADMIS");
+        	if(decis != NULL)
+            	fprintf(admis, "%s", texte);
+        }
+
+       fclose(concours);
+       fclose(admis);
+
+       printf("\tMODIFICATION DE LA LISTE D'ADMIS EFFECTUEE!\n\tVISUALISEZ LE RESULTAT DANS LE FICHIER \"admis.txt\"");
+    }
+}
+
+// Liste des candidats en liste d'attente
+void liste_attente()
+{
+    candidat eleve;
+    int c, n = 0, k;
+    char texte[100];
+
+    FILE *admis;
+    FILE *attente;
+    admis = fopen("admis.txt", "r");
+    attente = fopen("attente.txt", "w");
+
+	if(admis == NULL || attente == NULL)
+    	printf("\n\tERREUR D'OUVERTURE");
+    else
+	{
+	    while((c = fgetc(admis)) != EOF)
+	    	if(c == '\n')
+	            n++;
+	    rewind(admis);
+
+	    for(c = 0; c < n; c++)
+		{
+	        fscanf(admis, "%d ; %s ; %s ; %d", &eleve.NCIN, &eleve.NOM , &eleve.PRENOM, &eleve.AGE);
+	        rewind(admis);
+
+	        for(k = 0; k <= c; k++)
+	        	fgets(texte, 100, admis);
+	    	if(eleve.AGE > 20)
+				fprintf(attente, "%s", texte);
+	    }
+
+	    fclose(admis);
+	    fclose(attente);
+
+	    printf("\tMODIFICATION DE LA LISTE D'ATTENTE EFFECTUEE!\n\tVISUALISEZ LE RESULTAT DANS LE FICHIER \"attente.txt\"");
+	}
+}
+
+// Suppression d'un candidat
 void supprimer(int NCIN)
 {
 	candidat eleve;
@@ -118,84 +197,12 @@ void supprimer(int NCIN)
 	}
 
 	printf("\n\n");
-	admis();
+	liste_admis();
 	printf("\n\n");
-	attente();
+	liste_attente();
 }
 
-void admis()
-{
-    candidat eleve;
-    int c, n = 0;
-    char texte[100], *decis;
-
-    FILE *concours;
-    FILE *admis;
-    concours = fopen("concours.txt", "r");
-    admis = fopen("admis.txt", "w");
-
-    if(concours == NULL || admis == NULL)
-    	printf("\n\tERREUR D'OUVERTURE");
-    else
-	{
-        while((c = fgetc(concours)) != EOF)
-            if(c == '\n')
-                n++;
-        rewind(concours);
-
-        for(c = 0; c < n; c++)
-		{
-        	fgets(texte, 100, concours);
-        	decis = strstr(texte, "ADMIS");
-        	if(decis != NULL)
-            	fprintf(admis, "%s", texte);
-        }
-
-       fclose(concours);
-       fclose(admis);
-
-       printf("\tMODIFICATION DE LA LISTE D'ADMIS EFFECTUEE!\n\tVISUALISEZ LE RESULTAT DANS LE FICHIER \"admis.txt\"");
-    }
-}
-
-void attente()
-{
-    candidat eleve;
-    int c, n = 0, k;
-    char texte[100];
-
-    FILE *admis;
-    FILE *attente;
-    admis = fopen("admis.txt", "r");
-    attente = fopen("attente.txt", "w");
-
-	if(admis == NULL || attente == NULL)
-    	printf("\n\tERREUR D'OUVERTURE");
-    else
-	{
-	    while((c = fgetc(admis)) != EOF)
-	    	if(c == '\n')
-	            n++;
-	    rewind(admis);
-
-	    for(c = 0; c < n; c++)
-		{
-	        fscanf(admis, "%d ; %s ; %s ; %d", &eleve.NCIN, &eleve.NOM , &eleve.PRENOM, &eleve.AGE);
-	        rewind(admis);
-
-	        for(k = 0; k <= c; k++)
-	        	fgets(texte, 100, admis);
-	    	if(eleve.AGE > 20)
-				fprintf(attente, "%s", texte);
-	    }
-
-	    fclose(admis);
-	    fclose(attente);
-
-	    printf("\tMODIFICATION DE LA LISTE D'ATTENTE EFFECTUEE!\n\tVISUALISEZ LE RESULTAT DANS LE FICHIER \"attente.txt\"");
-	}
-}
-
+// Statistiques du concours
 double statistiques(Decision dec)
 {
 	char decis[8] = {0}, texte[100], *d;
@@ -235,6 +242,7 @@ double statistiques(Decision dec)
 	return (eff/tot)*100;
 }
 
+// Suppression des candidats de plus de 20 ans
 void supprimer_20()
 {
     candidat eleve;
@@ -276,6 +284,7 @@ void supprimer_20()
 	}
 }
 
+// Recherche d'un candidat
 void recherche(int NCIN)
 {
     candidat eleve;
@@ -315,6 +324,7 @@ void recherche(int NCIN)
 	}
 }
 
+// Affichage
 void presentation()
 {
     printf("\t\t 1. SAISIR / AJOUTER\n");
@@ -328,6 +338,7 @@ void presentation()
     printf("\t\t 9. RECHERCHE\n");
 }
 
+// Programme principal
 int main()
 {
 	int choix_1, choix_2, n, conf;
@@ -356,9 +367,9 @@ int main()
                 	 else printf("\n\tSUPPRESSION ANNULEE");
                 	 getch(); break;
 
-            case 4 : admis(); getch(); break;
+            case 4 : liste_admis(); getch(); break;
 
-            case 5 : attente(); getch(); break;
+            case 5 : liste_attente(); getch(); break;
 
             case 6 : printf("\t1. POURCENTAGE ADMIS \n\t2. POURCENTAGE REFUSE \n\t3. POURCENTAGE AJOURNE\n\n\t\t\tCHOISISSEZ L'OPERATION A EXECUTER : ");
                      scanf("%d", &n);
